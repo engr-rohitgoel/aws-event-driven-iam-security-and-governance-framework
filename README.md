@@ -67,7 +67,7 @@ Publishes real-time notifications to security teams.
 * CloudWatch
 
 ## IAC
-*Terraform
+* Terraform
 
 ## Deployment
 
