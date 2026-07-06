@@ -80,11 +80,13 @@ terraform apply
 ## Validation
 
 # 1. Create an IAM policy containing:
+
+```json
 {
   "Action":"iam:PassRole",
   "Resource":"*"
 }
-
+```
 # 2. Observe:
 * Lambda execution
 * CloudWatch logs
