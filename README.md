@@ -1,7 +1,101 @@
-# aws-event-driven-iam-security-and-governance-framework
+## Architecture
 
-Modern AWS environments often contain hundreds of IAM users, roles, groups, and policies. While IAM Access Analyzer helps identify overly permissive policies and unused permissions, organizations frequently need additional governance controls tailored to their own security standards.
+![High Level Design](./images/Access_Analyzer.jpg)
 
-This project implements an event-driven IAM governance framework using AWS native services to continuously monitor IAM policy lifecycle events, validate policies against AWS best practices, enforce organization-specific privileged action controls, and monitor unused IAM permissions.
 
-The solution is fully automated using Terraform and leverages EventBridge, CloudTrail, Lambda, SNS, S3, and IAM Access Analyzer.
+## The solution consists of:
+
+# CloudTrail
+Captures IAM management API events including:
+* CreatePolicy
+* CreatePolicyVersion
+* AttachRolePolicy
+* PutRolePolicy
+* PutUserPolicy
+* SetDefaultPolicyVersion
+  
+# EventBridge
+Routes IAM management events to Lambda for real-time policy evaluation.
+
+# Lambda 1 – IAM Policy Change Audit
+Collects IAM policy changes and publishes policy metadata to SNS.
+
+# Lambda 2 – IAM Policy Validator
+Uses IAM Access Analyzer ValidatePolicy API to detect:
+* Wildcard resources
+* Missing conditions
+* Security warnings
+* IAM policy best-practice violations
+
+# Lambda 3 – Custom Privileged Action Checker
+
+Implements organization-specific governance by checking policies against a centrally managed list of privileged IAM actions stored in Amazon S3.
+
+Examples include:
+
+* iam:PassRole
+* iam:CreateRole
+* organizations:CreateAccount
+* cloudtrail:DeleteTrail
+
+# Lambda 4 – Unused Access Monitoring
+
+Processes IAM Access Analyzer unused-access findings and notifies security teams when IAM entities have excessive or unused permissions.
+
+# Amazon SNS
+
+Publishes real-time notifications to security teams.
+
+##  Benefits
+* Fully serverless
+* Event-driven architecture
+* AWS native services only
+* Infrastructure as Code using Terraform
+* Supports security operations teams
+* Enables continuous IAM governance
+* Detects policy misconfigurations in near real time
+* Supports least-privilege initiatives
+
+## AWS Services Used
+* IAM
+* IAM Access Analyzer
+* CloudTrail
+* EventBridge
+* Lambda
+* SNS
+* S3
+* CloudWatch
+
+## IAC
+*Terraform
+
+## Deployment
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+## Validation
+
+# 1. Create an IAM policy containing:
+{
+  "Action":"iam:PassRole",
+  "Resource":"*"
+}
+
+# 2. Observe:
+* Lambda execution
+* CloudWatch logs
+* SNS notifications
+* Policy validation findings
+
+
+## Architecture Principles
+* Serverless
+* Event Driven
+* Least Privilege
+* Security by Design
+* Infrastructure as Code
+* AWS Well-Architected Framework
